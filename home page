@@ -43,62 +43,51 @@
       backdrop-filter: blur(4px);
     }
     .parsing-preview {
-      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-      border: 2px dashed #22c55e;
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      border: 2px dashed #1a2d71;
     }
   </style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
   <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
  </head>
- <body class="h-full bg-slate-900 text-slate-100 overflow-auto">
+ <body class="h-full text-slate-100 overflow-auto">
   <div id="app" class="h-full w-full flex flex-col"><!-- Header -->
-   <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between flex-shrink-0">
+   <header class="border-b border-slate-300 px-6 py-4 flex items-center justify-between flex-shrink-0" style="background-color: #ffc72c;">
     <div>
-     <h1 id="calendar-title" class="text-2xl font-bold text-emerald-400">Team Time Off Calendar</h1>
-     <p id="company-name" class="text-slate-400 text-sm mt-1">Your Company</p>
+     <h1 id="calendar-title" class="text-2xl font-bold" style="color: #1a2d71;">Team Time Off Calendar</h1>
+     <p id="company-name" class="text-slate-700 text-sm mt-1">Your Company</p>
     </div>
-    <div class="flex items-center gap-3"><button id="upload-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors">
+    <div class="flex items-center gap-3"><button id="upload-btn" class="text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors" style="background-color: #1a2d71;" onmouseover="this.style.backgroundColor='#152558'" onmouseout="this.style.backgroundColor='#1a2d71'">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-      </svg> Upload Email </button> <button id="manual-add-btn" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg> Add Manually </button>
+      </svg> Upload Email </button>
     </div>
    </header><!-- Calendar Navigation -->
-   <div class="bg-slate-800 px-6 py-3 flex items-center justify-between border-b border-slate-700 flex-shrink-0"><button id="prev-year" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+   <div class="px-6 py-3 flex items-center justify-between border-b border-slate-300 flex-shrink-0" style="background-color: #ffc72c;"><button id="prev-year" class="p-2 hover:bg-yellow-500 rounded-lg transition-colors text-slate-800">
      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
      </svg></button>
-    <h2 id="current-year" class="text-xl font-semibold text-slate-200">2025</h2><button id="next-year" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+    <h2 id="current-year" class="text-xl font-semibold text-slate-800">2025</h2><button id="next-year" class="p-2 hover:bg-yellow-500 rounded-lg transition-colors text-slate-800">
      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
      </svg></button>
    </div><!-- Calendar Grid -->
-   <div class="flex-1 p-4 overflow-auto">
+   <div class="flex-1 p-4 overflow-auto" style="background-color: #ffc72c;">
     <div id="year-calendar-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"><!-- All 12 months will be generated here -->
     </div>
    </div><!-- Legend -->
-   <div class="bg-slate-800 border-t border-slate-700 px-6 py-3 flex items-center gap-6 flex-shrink-0"><span class="text-sm text-slate-400">Time Off Types:</span>
+   <div class="border-t border-slate-300 px-6 py-3 flex items-center gap-6 flex-shrink-0" style="background-color: #ffc72c;"><span class="text-sm text-slate-700">Time Off Type:</span>
     <div class="flex items-center gap-2">
-     <div class="w-4 h-4 rounded bg-emerald-500"></div><span class="text-sm text-slate-300">Vacation</span>
-    </div>
-    <div class="flex items-center gap-2">
-     <div class="w-4 h-4 rounded bg-amber-500"></div><span class="text-sm text-slate-300">Personal</span>
-    </div>
-    <div class="flex items-center gap-2">
-     <div class="w-4 h-4 rounded bg-rose-500"></div><span class="text-sm text-slate-300">Sick</span>
-    </div>
-    <div class="flex items-center gap-2">
-     <div class="w-4 h-4 rounded bg-sky-500"></div><span class="text-sm text-slate-300">Other</span>
+     <div class="w-4 h-4 rounded" style="background-color: #1a2d71;"></div><span class="text-sm text-slate-800">Vacation</span>
     </div>
    </div>
   </div><!-- Upload Modal -->
   <div id="upload-modal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
    <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-2xl mx-4 border border-slate-700 shadow-2xl max-h-[90%] overflow-auto">
     <div class="flex items-center justify-between mb-4">
-     <h3 class="text-xl font-bold text-slate-100">Upload Approval Email</h3><button id="close-upload" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+     <h3 class="text-xl font-bold text-slate-100">Upload Approval Email</h3><button id="close-upload" class="p-2 hover:bg-slate-700 rounded-lg transition-colors text-slate-100">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg></button>
     </div>
-    <p class="text-slate-400 text-sm mb-4">Paste the approval email content below. We'll extract the employee name, dates, and reason automatically.</p><textarea id="email-content" class="w-full h-48 bg-slate-900 border border-slate-600 rounded-lg p-4 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 resize-none" placeholder="Paste your approval email here...
+    <p class="text-slate-400 text-sm mb-4">Paste the approval email content below. We'll extract the employee name, dates, and reason automatically.</p><textarea id="email-content" class="w-full h-48 bg-slate-900 border border-slate-600 rounded-lg p-4 text-slate-200 placeholder-slate-500 focus:outline-none resize-none" style="focus:border-color: #1a2d71;" placeholder="Paste your approval email here...
 
 Example:
 Subject: Time Off Approved - John Smith
@@ -115,40 +104,17 @@ Reason: Vacation
 Best regards,
 HR Team"></textarea>
     <div id="parse-preview" class="hidden mt-4 parsing-preview rounded-lg p-4">
-     <h4 class="font-semibold text-emerald-700 mb-2">📋 Extracted Information:</h4>
+     <h4 class="font-semibold mb-2" style="color: #1a2d71;">📋 Extracted Information:</h4>
      <div id="parsed-data" class="text-sm text-slate-700 space-y-1"></div>
     </div>
-    <div class="flex justify-end gap-3 mt-4"><button id="cancel-upload" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">Cancel</button> <button id="parse-email" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors">Parse Email</button> <button id="confirm-upload" class="hidden px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors">Add to Calendar</button>
+    <div class="flex justify-end gap-3 mt-4"><button id="cancel-upload" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">Cancel</button> <button id="parse-email" class="px-4 py-2 text-white rounded-lg font-medium transition-colors" style="background-color: #1a2d71;" onmouseover="this.style.backgroundColor='#152558'" onmouseout="this.style.backgroundColor='#1a2d71'">Parse Email</button> <button id="confirm-upload" class="hidden px-4 py-2 text-white rounded-lg font-medium transition-colors" style="background-color: #1a2d71;" onmouseover="this.style.backgroundColor='#152558'" onmouseout="this.style.backgroundColor='#1a2d71'">Add to Calendar</button>
     </div>
-   </div>
-  </div><!-- Manual Add Modal -->
-  <div id="manual-modal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
-   <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-md mx-4 border border-slate-700 shadow-2xl">
-    <div class="flex items-center justify-between mb-4">
-     <h3 class="text-xl font-bold text-slate-100">Add Time Off</h3><button id="close-manual" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg></button>
-    </div>
-    <form id="manual-form" class="space-y-4">
-     <div><label for="employee-name" class="block text-sm font-medium text-slate-300 mb-1">Employee Name</label> <input type="text" id="employee-name" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500" placeholder="John Smith">
-     </div>
-     <div class="grid grid-cols-2 gap-4">
-      <div><label for="start-date" class="block text-sm font-medium text-slate-300 mb-1">Start Date</label> <input type="date" id="start-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
-      </div>
-      <div><label for="end-date" class="block text-sm font-medium text-slate-300 mb-1">End Date</label> <input type="date" id="end-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
-      </div>
-     </div>
-     <div><label for="reason" class="block text-sm font-medium text-slate-300 mb-1">Reason</label> <select id="reason" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"> <option value="Vacation">Vacation</option> <option value="Personal">Personal</option> <option value="Sick">Sick</option> <option value="Other">Other</option> </select>
-     </div>
-     <div class="flex justify-end gap-3 pt-2"><button type="button" id="cancel-manual" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">Cancel</button> <button type="submit" id="submit-manual" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors">Add Time Off</button>
-     </div>
-    </form>
    </div>
   </div><!-- Detail Modal -->
   <div id="detail-modal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
    <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-md mx-4 border border-slate-700 shadow-2xl">
     <div class="flex items-center justify-between mb-4">
-     <h3 class="text-xl font-bold text-slate-100">Time Off Details</h3><button id="close-detail" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+     <h3 class="text-xl font-bold text-slate-100">Time Off Details</h3><button id="close-detail" class="p-2 hover:bg-slate-700 rounded-lg transition-colors text-slate-100">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg></button>
     </div>
@@ -156,24 +122,27 @@ HR Team"></textarea>
     </div>
     <div class="flex justify-end gap-3 mt-6"><button id="delete-entry" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-medium transition-colors">Delete</button> <button id="close-detail-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">Close</button>
     </div>
-    <div id="delete-confirm" class="hidden mt-4 p-3 bg-rose-900/30 border border-rose-700 rounded-lg">
-     <p class="text-sm text-rose-300 mb-3">Are you sure you want to delete this time off entry?</p>
-     <div class="flex justify-end gap-2"><button id="cancel-delete" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-sm font-medium transition-colors">Cancel</button> <button id="confirm-delete" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded text-sm font-medium transition-colors">Yes, Delete</button>
+    <div id="delete-confirm" class="hidden mt-4 p-4 bg-rose-900/30 border border-rose-700 rounded-lg">
+     <p class="text-sm text-rose-300 mb-3">Enter password to delete this entry:</p><input type="password" id="delete-password" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-slate-200 placeholder-slate-400 focus:outline-none focus:border-rose-500 mb-3" placeholder="Enter password">
+     <div id="password-error" class="hidden text-xs text-rose-400 mb-2">
+      Incorrect password
+     </div>
+     <div class="flex justify-end gap-2"><button id="cancel-delete" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-sm font-medium transition-colors">Cancel</button> <button id="confirm-delete" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded text-sm font-medium transition-colors">Delete</button>
      </div>
     </div>
    </div>
   </div>
   <script>
+    // DELETE PASSWORD - Change this to set your own password
+    const DELETE_PASSWORD = 'admin123';
+    
     let timeOffData = [];
     let currentYear = new Date().getFullYear();
     let parsedEmailData = null;
     let selectedEntry = null;
 
     const colorMap = {
-      'Vacation': '#10b981',
-      'Personal': '#f59e0b',
-      'Sick': '#f43f5e',
-      'Other': '#0ea5e9'
+      'Vacation': '#1a2d71'
     };
 
     // LocalStorage functions
@@ -237,18 +206,18 @@ HR Team"></textarea>
       const prevMonthLastDay = new Date(year, month, 0).getDate();
       
       let html = `
-        <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
-          <div class="bg-slate-700 px-4 py-2 text-center">
-            <h3 class="font-semibold text-slate-200">${monthNames[month]}</h3>
+        <div class="bg-white rounded-xl overflow-hidden border border-slate-300 shadow-md">
+          <div class="px-4 py-2 text-center" style="background-color: #1a2d71;">
+            <h3 class="font-semibold text-white">${monthNames[month]}</h3>
           </div>
-          <div class="grid grid-cols-7 bg-slate-700/50 text-xs">
-            <div class="py-1 text-center text-slate-400">S</div>
-            <div class="py-1 text-center text-slate-400">M</div>
-            <div class="py-1 text-center text-slate-400">T</div>
-            <div class="py-1 text-center text-slate-400">W</div>
-            <div class="py-1 text-center text-slate-400">T</div>
-            <div class="py-1 text-center text-slate-400">F</div>
-            <div class="py-1 text-center text-slate-400">S</div>
+          <div class="grid grid-cols-7 bg-slate-100 text-xs">
+            <div class="py-1 text-center text-slate-600">S</div>
+            <div class="py-1 text-center text-slate-600">M</div>
+            <div class="py-1 text-center text-slate-600">T</div>
+            <div class="py-1 text-center text-slate-600">W</div>
+            <div class="py-1 text-center text-slate-600">T</div>
+            <div class="py-1 text-center text-slate-600">F</div>
+            <div class="py-1 text-center text-slate-600">S</div>
           </div>
           <div class="grid grid-cols-7">
       `;
@@ -281,9 +250,9 @@ HR Team"></textarea>
                          today.getFullYear() === year;
           
           html += `
-            <div class="min-h-[60px] border-t border-r border-slate-700 p-0.5 ${!isCurrentMonth ? 'other-month bg-slate-900/30' : ''}" data-date="${dateStr}">
+            <div class="min-h-[60px] border-t border-r border-slate-200 p-0.5 ${!isCurrentMonth ? 'other-month bg-slate-50' : 'bg-white'}" data-date="${dateStr}">
               <div class="text-right">
-                <span class="inline-block w-5 h-5 leading-5 text-center text-xs ${isToday ? 'bg-emerald-500 text-white rounded-full font-bold' : ''}">${dateNum}</span>
+                <span class="inline-block w-5 h-5 leading-5 text-center text-xs text-slate-700 ${isToday ? 'text-white rounded-full font-bold' : ''}" ${isToday ? 'style="background-color: #1a2d71;"' : ''}>${dateNum}</span>
               </div>
               <div class="space-y-0.5 mt-0.5" id="events-${dateStr}"></div>
             </div>
@@ -398,10 +367,7 @@ HR Team"></textarea>
         }
       }
       
-      if (/vacation/i.test(text)) result.reason = 'Vacation';
-      else if (/personal/i.test(text)) result.reason = 'Personal';
-      else if (/sick|medical|illness/i.test(text)) result.reason = 'Sick';
-      else result.reason = 'Other';
+      result.reason = 'Vacation';
       
       return result;
     }
@@ -466,15 +432,8 @@ HR Team"></textarea>
       openModal('upload-modal');
     };
 
-    document.getElementById('manual-add-btn').onclick = () => {
-      document.getElementById('manual-form').reset();
-      openModal('manual-modal');
-    };
-
     document.getElementById('close-upload').onclick = () => closeModal('upload-modal');
     document.getElementById('cancel-upload').onclick = () => closeModal('upload-modal');
-    document.getElementById('close-manual').onclick = () => closeModal('manual-modal');
-    document.getElementById('cancel-manual').onclick = () => closeModal('manual-modal');
     document.getElementById('close-detail').onclick = () => closeModal('detail-modal');
     document.getElementById('close-detail-btn').onclick = () => closeModal('detail-modal');
 
@@ -527,31 +486,27 @@ HR Team"></textarea>
       showToast('Time off added successfully!');
     };
 
-    document.getElementById('manual-form').onsubmit = (e) => {
-      e.preventDefault();
-      
-      addEntry({
-        employee_name: document.getElementById('employee-name').value,
-        start_date: document.getElementById('start-date').value,
-        end_date: document.getElementById('end-date').value,
-        reason: document.getElementById('reason').value,
-        created_at: new Date().toISOString()
-      });
-      
-      closeModal('manual-modal');
-      showToast('Time off added successfully!');
-    };
-
     document.getElementById('delete-entry').onclick = () => {
+      document.getElementById('delete-password').value = '';
+      document.getElementById('password-error').classList.add('hidden');
       document.getElementById('delete-confirm').classList.remove('hidden');
     };
 
     document.getElementById('cancel-delete').onclick = () => {
       document.getElementById('delete-confirm').classList.add('hidden');
+      document.getElementById('delete-password').value = '';
+      document.getElementById('password-error').classList.add('hidden');
     };
 
     document.getElementById('confirm-delete').onclick = () => {
       if (!selectedEntry) return;
+      
+      const enteredPassword = document.getElementById('delete-password').value;
+      
+      if (enteredPassword !== DELETE_PASSWORD) {
+        document.getElementById('password-error').classList.remove('hidden');
+        return;
+      }
       
       deleteEntry(selectedEntry.id);
       closeModal('detail-modal');
@@ -563,7 +518,10 @@ HR Team"></textarea>
       if (existing) existing.remove();
       
       const toast = document.createElement('div');
-      toast.className = `toast-message fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg font-medium shadow-lg z-50 ${type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'} text-white`;
+      toast.className = `toast-message fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg font-medium shadow-lg z-50 ${type === 'error' ? 'bg-rose-600' : ''} text-white`;
+      if (type !== 'error') {
+        toast.style.backgroundColor = '#1a2d71';
+      }
       toast.textContent = message;
       document.body.appendChild(toast);
       
@@ -574,5 +532,5 @@ HR Team"></textarea>
     timeOffData = loadData();
     renderCalendar();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bf726be77faf35f',t:'MTc2ODY2NjUyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bf7381ef6987d55',t:'MTc2ODY2NzIzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
