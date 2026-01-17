@@ -1,0 +1,721 @@
+<!doctype html>
+echo "# Vacation-Calendar" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/m2026rd/Vacation-Calendar.git
+git push -u origin main
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Off Calendar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    * {
+      font-family: 'DM Sans', sans-serif;
+    }
+    .time-off-bar {
+      position: absolute;
+      height: 24px;
+      border-radius: 4px;
+      font-size: 11px;
+      padding: 0 6px;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .time-off-bar:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .calendar-day {
+      min-height: 100px;
+      position: relative;
+    }
+    .calendar-day.other-month {
+      opacity: 0.4;
+    }
+    .modal-backdrop {
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+    }
+    .parsing-preview {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 2px dashed #22c55e;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full bg-slate-900 text-slate-100 overflow-auto">
+  <div id="app" class="h-full w-full flex flex-col"><!-- Header -->
+   <header class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center justify-between flex-shrink-0">
+    <div>
+     <h1 id="calendar-title" class="text-2xl font-bold text-emerald-400">Team Time Off Calendar</h1>
+     <p id="company-name" class="text-slate-400 text-sm mt-1">Your Company</p>
+    </div>
+    <div class="flex items-center gap-3"><button id="upload-btn" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+      </svg> Upload Email </button> <button id="manual-add-btn" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg> Add Manually </button>
+    </div>
+   </header><!-- Calendar Navigation -->
+   <div class="bg-slate-800 px-6 py-3 flex items-center justify-between border-b border-slate-700 flex-shrink-0"><button id="prev-year" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+     </svg></button>
+    <h2 id="current-year" class="text-xl font-semibold text-slate-200">2025</h2><button id="next-year" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+     </svg></button>
+   </div><!-- Calendar Grid -->
+   <div class="flex-1 p-4 overflow-auto">
+    <div id="year-calendar-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"><!-- All 12 months will be generated here -->
+    </div>
+   </div><!-- Legend -->
+   <div class="bg-slate-800 border-t border-slate-700 px-6 py-3 flex items-center gap-6 flex-shrink-0"><span class="text-sm text-slate-400">Time Off Types:</span>
+    <div class="flex items-center gap-2">
+     <div class="w-4 h-4 rounded bg-emerald-500"></div><span class="text-sm text-slate-300">Vacation</span>
+    </div>
+    <div class="flex items-center gap-2">
+     <div class="w-4 h-4 rounded bg-amber-500"></div><span class="text-sm text-slate-300">Personal</span>
+    </div>
+    <div class="flex items-center gap-2">
+     <div class="w-4 h-4 rounded bg-rose-500"></div><span class="text-sm text-slate-300">Sick</span>
+    </div>
+    <div class="flex items-center gap-2">
+     <div class="w-4 h-4 rounded bg-sky-500"></div><span class="text-sm text-slate-300">Other</span>
+    </div>
+   </div>
+  </div><!-- Upload Modal -->
+  <div id="upload-modal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
+   <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-2xl mx-4 border border-slate-700 shadow-2xl max-h-[90%] overflow-auto">
+    <div class="flex items-center justify-between mb-4">
+     <h3 class="text-xl font-bold text-slate-100">Upload Approval Email</h3><button id="close-upload" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg></button>
+    </div>
+    <p class="text-slate-400 text-sm mb-4">Paste the approval email content below. We'll extract the employee name, dates, and reason automatically.</p><textarea id="email-content" class="w-full h-48 bg-slate-900 border border-slate-600 rounded-lg p-4 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 resize-none" placeholder="Paste your approval email here...
+
+Example:
+Subject: Time Off Approved - John Smith
+
+Hi John,
+
+Your time off request has been approved.
+
+Employee: John Smith
+Start Date: January 15, 2025
+End Date: January 20, 2025
+Reason: Vacation
+
+Best regards,
+HR Team"></textarea>
+    <div id="parse-preview" class="hidden mt-4 parsing-preview rounded-lg p-4">
+     <h4 class="font-semibold text-emerald-700 mb-2">📋 Extracted Information:</h4>
+     <div id="parsed-data" class="text-sm text-slate-700 space-y-1"></div>
+    </div>
+    <div class="flex justify-end gap-3 mt-4"><button id="cancel-upload" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">Cancel</button> <button id="parse-email" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors">Parse Email</button> <button id="confirm-upload" class="hidden px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors">Add to Calendar</button>
+    </div>
+   </div>
+  </div><!-- Manual Add Modal -->
+  <div id="manual-modal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
+   <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-md mx-4 border border-slate-700 shadow-2xl">
+    <div class="flex items-center justify-between mb-4">
+     <h3 class="text-xl font-bold text-slate-100">Add Time Off</h3><button id="close-manual" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg></button>
+    </div>
+    <form id="manual-form" class="space-y-4">
+     <div><label for="employee-name" class="block text-sm font-medium text-slate-300 mb-1">Employee Name</label> <input type="text" id="employee-name" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500" placeholder="John Smith">
+     </div>
+     <div class="grid grid-cols-2 gap-4">
+      <div><label for="start-date" class="block text-sm font-medium text-slate-300 mb-1">Start Date</label> <input type="date" id="start-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+      </div>
+      <div><label for="end-date" class="block text-sm font-medium text-slate-300 mb-1">End Date</label> <input type="date" id="end-date" required class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500">
+      </div>
+     </div>
+     <div><label for="reason" class="block text-sm font-medium text-slate-300 mb-1">Reason</label> <select id="reason" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-slate-200 focus:outline-none focus:border-emerald-500"> <option value="Vacation">Vacation</option> <option value="Personal">Personal</option> <option value="Sick">Sick</option> <option value="Other">Other</option> </select>
+     </div>
+     <div class="flex justify-end gap-3 pt-2"><button type="button" id="cancel-manual" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">Cancel</button> <button type="submit" id="submit-manual" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors">Add Time Off</button>
+     </div>
+    </form>
+   </div>
+  </div><!-- Detail Modal -->
+  <div id="detail-modal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50">
+   <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-md mx-4 border border-slate-700 shadow-2xl">
+    <div class="flex items-center justify-between mb-4">
+     <h3 class="text-xl font-bold text-slate-100">Time Off Details</h3><button id="close-detail" class="p-2 hover:bg-slate-700 rounded-lg transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg></button>
+    </div>
+    <div id="detail-content" class="space-y-3"><!-- Details will be populated here -->
+    </div>
+    <div class="flex justify-end gap-3 mt-6"><button id="delete-entry" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-medium transition-colors">Delete</button> <button id="close-detail-btn" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors">Close</button>
+    </div>
+    <div id="delete-confirm" class="hidden mt-4 p-3 bg-rose-900/30 border border-rose-700 rounded-lg">
+     <p class="text-sm text-rose-300 mb-3">Are you sure you want to delete this time off entry?</p>
+     <div class="flex justify-end gap-2"><button id="cancel-delete" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-sm font-medium transition-colors">Cancel</button> <button id="confirm-delete" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded text-sm font-medium transition-colors">Yes, Delete</button>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      calendar_title: 'Team Time Off Calendar',
+      company_name: 'Your Company',
+      primary_color: '#10b981',
+      background_color: '#0f172a',
+      surface_color: '#1e293b',
+      text_color: '#f1f5f9',
+      accent_color: '#334155'
+    };
+
+    let timeOffData = [];
+    let currentYear = new Date().getFullYear();
+    let parsedEmailData = null;
+    let selectedEntry = null;
+    let isSubmitting = false;
+
+    const colorMap = {
+      'Vacation': '#10b981',
+      'Personal': '#f59e0b',
+      'Sick': '#f43f5e',
+      'Other': '#0ea5e9'
+    };
+
+    // Data Handler
+    const dataHandler = {
+      onDataChanged(data) {
+        timeOffData = data;
+        renderCalendar();
+      }
+    };
+
+    // Element SDK
+    async function onConfigChange(config) {
+      const title = document.getElementById('calendar-title');
+      const company = document.getElementById('company-name');
+      
+      if (title) title.textContent = config.calendar_title || defaultConfig.calendar_title;
+      if (company) company.textContent = config.company_name || defaultConfig.company_name;
+      
+      // Apply colors
+      const bgColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryColor = config.primary_color || defaultConfig.primary_color;
+      const accentColor = config.accent_color || defaultConfig.accent_color;
+      
+      document.body.style.backgroundColor = bgColor;
+      document.body.style.color = textColor;
+      
+      document.querySelectorAll('.bg-slate-800').forEach(el => {
+        el.style.backgroundColor = surfaceColor;
+      });
+      
+      document.querySelectorAll('.bg-emerald-500').forEach(el => {
+        el.style.backgroundColor = primaryColor;
+      });
+      
+      document.querySelectorAll('.text-emerald-400').forEach(el => {
+        el.style.color = primaryColor;
+      });
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [
+          {
+            get: () => config.background_color || defaultConfig.background_color,
+            set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
+          },
+          {
+            get: () => config.surface_color || defaultConfig.surface_color,
+            set: (v) => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); }
+          },
+          {
+            get: () => config.text_color || defaultConfig.text_color,
+            set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
+          },
+          {
+            get: () => config.primary_color || defaultConfig.primary_color,
+            set: (v) => { config.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); }
+          },
+          {
+            get: () => config.accent_color || defaultConfig.accent_color,
+            set: (v) => { config.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }
+          }
+        ],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['calendar_title', config.calendar_title || defaultConfig.calendar_title],
+        ['company_name', config.company_name || defaultConfig.company_name]
+      ]);
+    }
+
+    // Calendar rendering - now renders all 12 months
+    function renderCalendar() {
+      const yearGrid = document.getElementById('year-calendar-grid');
+      const yearDisplay = document.getElementById('current-year');
+      
+      yearDisplay.textContent = currentYear;
+      
+      let html = '';
+      
+      // Generate all 12 months
+      for (let month = 0; month < 12; month++) {
+        html += renderMonth(currentYear, month);
+      }
+      
+      yearGrid.innerHTML = html;
+      renderTimeOffBars();
+    }
+
+    function renderMonth(year, month) {
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                         'July', 'August', 'September', 'October', 'November', 'December'];
+      
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDay = firstDay.getDay();
+      const daysInMonth = lastDay.getDate();
+      
+      const prevMonthLastDay = new Date(year, month, 0).getDate();
+      
+      let html = `
+        <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
+          <div class="bg-slate-700 px-4 py-2 text-center">
+            <h3 class="font-semibold text-slate-200">${monthNames[month]}</h3>
+          </div>
+          <div class="grid grid-cols-7 bg-slate-700/50 text-xs">
+            <div class="py-1 text-center text-slate-400">S</div>
+            <div class="py-1 text-center text-slate-400">M</div>
+            <div class="py-1 text-center text-slate-400">T</div>
+            <div class="py-1 text-center text-slate-400">W</div>
+            <div class="py-1 text-center text-slate-400">T</div>
+
+            <div class="py-1 text-center text-slate-400">F</div>
+            <div class="py-1 text-center text-slate-400">S</div>
+          </div>
+          <div class="grid grid-cols-7">
+      `;
+      
+      let dayCount = 1;
+      let nextMonthDay = 1;
+      
+      for (let week = 0; week < 6; week++) {
+        for (let day = 0; day < 7; day++) {
+          const cellIndex = week * 7 + day;
+          let dateNum, isCurrentMonth = true, dateStr;
+          
+          if (cellIndex < startDay) {
+            dateNum = prevMonthLastDay - startDay + cellIndex + 1;
+            isCurrentMonth = false;
+            dateStr = formatDate(new Date(year, month - 1, dateNum));
+          } else if (dayCount > daysInMonth) {
+            dateNum = nextMonthDay++;
+            isCurrentMonth = false;
+            dateStr = formatDate(new Date(year, month + 1, dateNum));
+          } else {
+            dateNum = dayCount++;
+            dateStr = formatDate(new Date(year, month, dateNum));
+          }
+          
+          const today = new Date();
+          const isToday = isCurrentMonth && 
+                         today.getDate() === new Date(year, month, dateNum).getDate() &&
+                         today.getMonth() === month &&
+                         today.getFullYear() === year;
+          
+          html += `
+            <div class="min-h-[60px] border-t border-r border-slate-700 p-0.5 ${!isCurrentMonth ? 'other-month bg-slate-900/30' : ''}" data-date="${dateStr}">
+              <div class="text-right">
+                <span class="inline-block w-5 h-5 leading-5 text-center text-xs ${isToday ? 'bg-emerald-500 text-white rounded-full font-bold' : ''}">${dateNum}</span>
+              </div>
+              <div class="space-y-0.5 mt-0.5" id="events-${dateStr}"></div>
+            </div>
+          `;
+        }
+        if (dayCount > daysInMonth && week >= 4) break;
+      }
+      
+      html += `
+          </div>
+        </div>
+      `;
+      
+      return html;
+    }
+
+    function renderTimeOffBars() {
+      // Clear existing events
+      document.querySelectorAll('[id^="events-"]').forEach(el => el.innerHTML = '');
+      
+      timeOffData.forEach(entry => {
+        const startDate = new Date(entry.start_date);
+        const endDate = new Date(entry.end_date);
+        
+        let current = new Date(startDate);
+        while (current <= endDate) {
+          const dateStr = formatDate(current);
+          const container = document.getElementById(`events-${dateStr}`);
+          
+          if (container) {
+            const color = colorMap[entry.reason] || colorMap['Other'];
+            
+            const bar = document.createElement('div');
+            bar.className = 'text-white text-[9px] px-1 py-0.5 rounded cursor-pointer hover:opacity-80 transition-opacity truncate';
+            bar.style.backgroundColor = color;
+            bar.textContent = entry.employee_name.split(' ')[0]; // Show first name only for space
+            bar.onclick = () => showDetail(entry);
+            
+            container.appendChild(bar);
+          }
+          
+          current.setDate(current.getDate() + 1);
+        }
+      });
+    }
+
+    function formatDate(date) {
+      return date.toISOString().split('T')[0];
+    }
+
+    // Email parsing
+    function parseEmail(text) {
+      const result = {
+        employee_name: '',
+        start_date: '',
+        end_date: '',
+        reason: 'Vacation'
+      };
+      
+      // Employee name patterns - prioritize greeting patterns first
+      const namePatterns = [
+        /Hello\s+([A-Za-z]+\s+[A-Za-z]+)/i,
+        /Hi\s+([A-Za-z]+\s+[A-Za-z]+)/i,
+        /Dear\s+([A-Za-z]+\s+[A-Za-z]+)/i,
+        /Employee[:\s]+([A-Za-z]+\s+[A-Za-z]+)/i,
+        /Name[:\s]+([A-Za-z]+\s+[A-Za-z]+)/i,
+        /for\s+([A-Za-z]+\s+[A-Za-z]+)/i,
+        /Subject:.*?-\s*([A-Za-z]+\s+[A-Za-z]+)/i
+      ];
+      
+      for (const pattern of namePatterns) {
+        const match = text.match(pattern);
+        if (match) {
+          result.employee_name = match[1].trim();
+          break;
+        }
+      }
+      
+      // Date patterns
+      const datePatterns = [
+        /Start\s*Date[:\s]+(\w+\s+\d{1,2},?\s+\d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+        /Start\s*Day[:\s]+(\w+\s+\d{1,2},?\s+\d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+        /From[:\s]+(\w+\s+\d{1,2},?\s+\d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+        /Beginning[:\s]+(\w+\s+\d{1,2},?\s+\d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+        /for\s+start\s+day\s+(\w+\s+\d{1,2},?\s+\d{4})/i
+      ];
+      
+      const endDatePatterns = [
+        /End\s*Date[:\s]+(\w+\s+\d{1,2},?\s+\d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+        /End\s*Day[:\s]+(\w+\s+\d{1,2},?\s+\d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+        /To[:\s]+(\w+\s+\d{1,2},?\s+\d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+        /Through[:\s]+(\w+\s+\d{1,2},?\s+\d{4}|\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/i,
+        /and\s+end\s+date\s+(\w+\s+\d{1,2},?\s+\d{4})/i
+      ];
+      
+      for (const pattern of datePatterns) {
+        const match = text.match(pattern);
+        if (match) {
+          const parsed = new Date(match[1]);
+          if (!isNaN(parsed)) {
+            result.start_date = formatDate(parsed);
+            break;
+          }
+        }
+      }
+      
+      for (const pattern of endDatePatterns) {
+        const match = text.match(pattern);
+        if (match) {
+          const parsed = new Date(match[1]);
+          if (!isNaN(parsed)) {
+            result.end_date = formatDate(parsed);
+            break;
+          }
+        }
+      }
+      
+      // Reason detection
+      if (/vacation/i.test(text)) result.reason = 'Vacation';
+      else if (/personal/i.test(text)) result.reason = 'Personal';
+      else if (/sick|medical|illness/i.test(text)) result.reason = 'Sick';
+      else result.reason = 'Other';
+      
+      return result;
+    }
+
+    function showDetail(entry) {
+      selectedEntry = entry;
+      const content = document.getElementById('detail-content');
+      const color = colorMap[entry.reason] || colorMap['Other'];
+      
+      content.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-4 h-12 rounded" style="background-color: ${color}"></div>
+          <div>
+            <h4 class="text-lg font-semibold text-slate-100">${entry.employee_name}</h4>
+            <p class="text-slate-400">${entry.reason}</p>
+          </div>
+        </div>
+        <div class="bg-slate-900 rounded-lg p-4 space-y-2">
+          <div class="flex justify-between">
+            <span class="text-slate-400">Start Date:</span>
+            <span class="text-slate-200">${new Date(entry.start_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">End Date:</span>
+            <span class="text-slate-200">${new Date(entry.end_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-400">Duration:</span>
+            <span class="text-slate-200">${calculateDays(entry.start_date, entry.end_date)} day(s)</span>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('delete-confirm').classList.add('hidden');
+      document.getElementById('detail-modal').classList.remove('hidden');
+      document.getElementById('detail-modal').classList.add('flex');
+    }
+
+    function calculateDays(start, end) {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      return Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    }
+
+    // Modal controls
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      document.getElementById(id).classList.add('flex');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.getElementById(id).classList.remove('flex');
+    }
+
+    // Event listeners
+    document.getElementById('upload-btn').onclick = () => {
+      document.getElementById('email-content').value = '';
+      document.getElementById('parse-preview').classList.add('hidden');
+      document.getElementById('confirm-upload').classList.add('hidden');
+      document.getElementById('parse-email').classList.remove('hidden');
+      parsedEmailData = null;
+      openModal('upload-modal');
+    };
+
+    document.getElementById('manual-add-btn').onclick = () => {
+      document.getElementById('manual-form').reset();
+      openModal('manual-modal');
+    };
+
+    document.getElementById('close-upload').onclick = () => closeModal('upload-modal');
+    document.getElementById('cancel-upload').onclick = () => closeModal('upload-modal');
+    document.getElementById('close-manual').onclick = () => closeModal('manual-modal');
+    document.getElementById('cancel-manual').onclick = () => closeModal('manual-modal');
+    document.getElementById('close-detail').onclick = () => closeModal('detail-modal');
+    document.getElementById('close-detail-btn').onclick = () => closeModal('detail-modal');
+
+    document.getElementById('prev-year').onclick = () => {
+      currentYear--;
+      renderCalendar();
+    };
+
+    document.getElementById('next-year').onclick = () => {
+      currentYear++;
+      renderCalendar();
+    };
+
+    document.getElementById('parse-email').onclick = () => {
+      const text = document.getElementById('email-content').value;
+      if (!text.trim()) return;
+      
+      parsedEmailData = parseEmail(text);
+      
+      const preview = document.getElementById('parse-preview');
+      const parsedDiv = document.getElementById('parsed-data');
+      
+      parsedDiv.innerHTML = `
+        <p><strong>Employee:</strong> ${parsedEmailData.employee_name || '<span class="text-rose-600">Not found</span>'}</p>
+        <p><strong>Start Date:</strong> ${parsedEmailData.start_date || '<span class="text-rose-600">Not found</span>'}</p>
+        <p><strong>End Date:</strong> ${parsedEmailData.end_date || '<span class="text-rose-600">Not found</span>'}</p>
+        <p><strong>Reason:</strong> ${parsedEmailData.reason}</p>
+      `;
+      
+      preview.classList.remove('hidden');
+      
+      if (parsedEmailData.employee_name && parsedEmailData.start_date && parsedEmailData.end_date) {
+        document.getElementById('confirm-upload').classList.remove('hidden');
+        document.getElementById('parse-email').classList.add('hidden');
+      }
+    };
+
+    document.getElementById('confirm-upload').onclick = async () => {
+      if (!parsedEmailData || isSubmitting) return;
+      if (timeOffData.length >= 999) {
+        showToast('Maximum limit of 999 entries reached. Please delete some entries first.', 'error');
+        return;
+      }
+      
+      isSubmitting = true;
+      const uploadBtn = document.getElementById('confirm-upload');
+      uploadBtn.textContent = 'Adding...';
+      uploadBtn.disabled = true;
+      
+      try {
+        const result = await window.dataSdk.create({
+          employee_name: parsedEmailData.employee_name,
+          start_date: parsedEmailData.start_date,
+          end_date: parsedEmailData.end_date,
+          reason: parsedEmailData.reason,
+          created_at: new Date().toISOString()
+        });
+        
+        isSubmitting = false;
+        uploadBtn.textContent = 'Add to Calendar';
+        uploadBtn.disabled = false;
+        
+        if (result.isOk) {
+          closeModal('upload-modal');
+          showToast('Time off added successfully!');
+        } else {
+          showToast('Failed to add time off: ' + (result.error?.message || 'Unknown error'), 'error');
+        }
+      } catch (error) {
+        isSubmitting = false;
+        uploadBtn.textContent = 'Add to Calendar';
+        uploadBtn.disabled = false;
+        showToast('Error: ' + error.message, 'error');
+      }
+    };
+
+    document.getElementById('manual-form').onsubmit = async (e) => {
+      e.preventDefault();
+      if (isSubmitting) return;
+      if (timeOffData.length >= 999) {
+        showToast('Maximum limit of 999 entries reached. Please delete some entries first.', 'error');
+        return;
+      }
+      
+      const submitBtn = document.getElementById('submit-manual');
+      isSubmitting = true;
+      submitBtn.textContent = 'Adding...';
+      submitBtn.disabled = true;
+      
+      const result = await window.dataSdk.create({
+        employee_name: document.getElementById('employee-name').value,
+        start_date: document.getElementById('start-date').value,
+        end_date: document.getElementById('end-date').value,
+        reason: document.getElementById('reason').value,
+        created_at: new Date().toISOString()
+      });
+      
+      isSubmitting = false;
+      submitBtn.textContent = 'Add Time Off';
+      submitBtn.disabled = false;
+      
+      if (result.isOk) {
+        closeModal('manual-modal');
+        showToast('Time off added successfully!');
+      } else {
+        showToast('Failed to add time off. Please try again.', 'error');
+      }
+    };
+
+    document.getElementById('delete-entry').onclick = () => {
+      document.getElementById('delete-confirm').classList.remove('hidden');
+    };
+
+    document.getElementById('cancel-delete').onclick = () => {
+      document.getElementById('delete-confirm').classList.add('hidden');
+    };
+
+    document.getElementById('confirm-delete').onclick = async () => {
+      if (!selectedEntry || isSubmitting) return;
+      
+      isSubmitting = true;
+      document.getElementById('confirm-delete').textContent = 'Deleting...';
+      document.getElementById('confirm-delete').disabled = true;
+      
+      const result = await window.dataSdk.delete(selectedEntry);
+      
+      isSubmitting = false;
+      document.getElementById('confirm-delete').textContent = 'Yes, Delete';
+      document.getElementById('confirm-delete').disabled = false;
+      
+      if (result.isOk) {
+        closeModal('detail-modal');
+        showToast('Time off entry deleted.');
+      } else {
+        showToast('Failed to delete entry. Please try again.', 'error');
+      }
+    };
+
+    function showToast(message, type = 'success') {
+      const existing = document.querySelector('.toast-message');
+      if (existing) existing.remove();
+      
+      const toast = document.createElement('div');
+      toast.className = `toast-message fixed bottom-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg font-medium shadow-lg z-50 ${type === 'error' ? 'bg-rose-600' : 'bg-emerald-600'} text-white`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Initialize
+    async function init() {
+      if (window.elementSdk) {
+        await window.elementSdk.init({
+          defaultConfig,
+          onConfigChange,
+          mapToCapabilities,
+          mapToEditPanelValues
+        });
+      }
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          console.error('Failed to initialize data SDK');
+        }
+      }
+      
+      renderCalendar();
+    }
+
+    init();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9bf6bc1bb2a06b25',t:'MTc2ODY2MjE1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
